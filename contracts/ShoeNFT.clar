@@ -1,7 +1,4 @@
 ;; ShoeNFT - A platform for creating and trading limited edition shoe NFTs
-;; This contract implements the SIP-009 NFT standard
-
-(impl-trait 'SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9.nft-trait.nft-trait)
 
 (define-non-fungible-token shoe-nft uint)
 
@@ -15,7 +12,7 @@
 (define-constant err-token-exists (err u102))
 (define-constant err-token-not-found (err u103))
 
-;; SIP-009 functions
+;; Core functions
 (define-public (get-last-token-id)
   (ok (var-get last-token-id))
 )
@@ -41,7 +38,8 @@
     (
       (token-id (+ (var-get last-token-id) u1))
     )
-    (asserts! (is-eq tx-sender (contract-caller)) err-not-authorized)
+    ;; Only the transaction sender can mint
+    (asserts! (is-eq tx-sender contract-caller) err-not-authorized)
     (try! (nft-mint? shoe-nft token-id recipient))
     (map-set token-uri token-id uri)
     (map-set token-metadata token-id {creator: tx-sender, model: model, edition: edition})
